@@ -46,7 +46,26 @@ def create_user(cursor, username, password):
         print('Created')
 
 
+def login(cursor, username, password):
+    if not user_exists(cursor, username):
+        print(f"O usuário '{username}' não existe.")
+        return False
+
+    consult = "SELECT password FROM user WHERE username = %s"
+    cursor.execute(consult, (username,))
+    hashed_password = cursor.fetchone()[0]
+
+    input_hashed_password = hash_password(password)
+
+    if hashed_password == input_hashed_password:
+        print("Login bem sucedido.")
+        return True
+    else:
+        print("Senha incorreta.")
+        return False
+
+
 # create_user_table(db_cursor)
-create_user(db_cursor, 'Zenith', 'kae')
+login(db_cursor, 'Zenith', 'kae')
 conn.commit()
 conn.close()
