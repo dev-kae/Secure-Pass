@@ -8,14 +8,15 @@ conn = mysql.connector.connect(
     password="root",
     database="secure_pass"
 )
-# conn.close()
 
 db_cursor = conn.cursor()
 
 
 def user_exists(cursor, username):
-    consult = "SELECT COUNT (*) FROM user WHERE username = %s"
+    consult = "SELECT COUNT(*) FROM user WHERE username = %s"
     cursor.execute(consult, (username,))
+    count = cursor.fetchone()[0]
+    return count > 0
 
 
 def create_user_table(cursor):
@@ -36,13 +37,16 @@ def hash_password(password):
 
 
 def create_user(cursor, username, password):
-    hashed_password = hash_password(password)
-    consult = f"INSERT INTO user (username, password) values (%s, %s)"
-    cursor.execute(consult, (username, hashed_password))
+    if user_exists(cursor, username):
+        print(f"User '{username}' already exists.")
+    else:
+        hashed_password = hash_password(password)
+        consult = f"INSERT INTO user (username, password) VALUES (%s, %s)"
+        cursor.execute(consult, (username, hashed_password))
+        print('Created')
 
 
-create_user_table(db_cursor)
-create_user(db_cursor, 'lucas', 'kae')
-
+# create_user_table(db_cursor)
+create_user(db_cursor, 'Zenith', 'kae')
 conn.commit()
 conn.close()
